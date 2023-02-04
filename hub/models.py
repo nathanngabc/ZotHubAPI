@@ -1,4 +1,10 @@
 from django.db import models
+from django.contrib.auth.models import User
+
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=100, primary_key=True)
 
 class Club(models.Model):
     name = models.CharField("Name", max_length=100, primary_key=True)
@@ -8,6 +14,8 @@ class Club(models.Model):
     clubid = models.CharField("clubid", max_length = 100, unique=True)
     featured = models.BooleanField(default=False)
     iamgeURL = models.CharField(max_length = 300)
+    memberCount = models.IntegerField(default=0)
+    tags = models.ManyToManyField(Tag, blank=True, related_name="club_tags")
 
     def __str__(self):
         return self.name
@@ -22,8 +30,18 @@ class Event(models.Model):
     date = models.DateField()
     location = models.CharField(max_length = 100)
     type = models.CharField(max_length=100)
+    tags = models.ManyToManyField(Tag, blank=True, related_name="event_tags")
+    memberCount = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
 
 
+class UserProfile(models.Model):
+    username = models.CharField(max_length=40, unique=True)
+    associated_user = models.ForeignKey(User, on_delete=models.CASCADE, unique=True)
+
+    following_tags = models.ManyToManyField(Tag, blank=True, related_name="user_tags")
+    following_clubs = models.ManyToManyField(Club, blank=True, related_name="user_clubs")
+    following_events = models.ManyToManyField(Event, blank=True, related_name="user_events")
+    

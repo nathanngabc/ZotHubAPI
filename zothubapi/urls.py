@@ -17,6 +17,9 @@ from django.contrib import admin
 from django.urls import path, re_path
 from hub import views
 from django.conf.urls import include
+from rest_framework.authtoken import views as v
+from rest_framework.authtoken.models import Token
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,4 +27,7 @@ urlpatterns = [
     path('api/<str:school>/club/<str:id>', views.club_detail),
     path('api/<str:school>/events', views.events_list),
     path('api/<str:school>/event/<int:id>', views.event_detail),
+    path('api/profile', views.ProfileView),
+    path('api/createuser', views.ProfileCreate),
+    path('api-token-auth', v.obtain_auth_token, name='api-token-auth'),
 ]

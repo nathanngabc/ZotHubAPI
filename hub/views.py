@@ -11,6 +11,8 @@ from .serializers import *
 
 from rest_framework.permissions import IsAuthenticated
 
+#Clubs
+
 @api_view(['GET'])
 def clubs_list(request, school):
     if request.method == 'GET':
@@ -45,10 +47,25 @@ def club_detail(request, school, id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+def club_events_list(request, school, id):
+    try:    
+        clubs = Club.objects.filter(school=school)
+        club = clubs.get(clubid=id)
+    except Club.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    eventslist = []
+    for e in Event.objects.all():
+        if e.club == club:
+            eventslist.append(e)
+    serializer = EventSerializer(eventslist, context={'request': request}, many=True)
+    return Response(serializer.data)    
+
+#Events
+
+@api_view(['GET'])
 def events_list(request, school):
     if request.method == 'GET':
         clubs = Club.objects.filter(school=school)
-        print(clubs)
         eventslist = []
         for e in Event.objects.all():
             if e.club in clubs:

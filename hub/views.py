@@ -39,10 +39,6 @@ def club_detail(request, school, id):
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == 'DELETE':
-        data.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
 @api_view(['GET'])
 def events_list(request, school):
     if request.method == 'GET':

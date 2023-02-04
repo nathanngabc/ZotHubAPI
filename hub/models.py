@@ -5,7 +5,9 @@ class Club(models.Model):
     description = models.CharField("Description", max_length=600)
     email = models.EmailField()
     school = models.CharField("School", max_length = 100)
-    clubid = models.CharField("clubid", max_length = 100)
+    clubid = models.CharField("clubid", max_length = 100, unique=True)
+    featured = models.BooleanField(default=False)
+    iamgeURL = models.CharField(max_length = 300)
 
     def __str__(self):
         return self.name

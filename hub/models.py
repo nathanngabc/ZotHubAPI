@@ -12,11 +12,16 @@ class Club(models.Model):
 
 # Create your models here.
 class Event(models.Model):
-    name = models.CharField("Name", max_length=100)
-    description = models.CharField("Description", max_length=600)
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=600)
     club = models.ForeignKey(Club, on_delete = models.CASCADE, related_name="host")
-    time = models.TimeField()
-    location = models.CharField("Location", max_length = 100)
+    starttime = models.TimeField()
+    endtime = models.TimeField()
+    date = models.DateField()
+    location = models.CharField(max_length = 100)
+    type = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
+
+

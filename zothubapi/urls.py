@@ -21,5 +21,7 @@ from django.conf.urls import include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/<str:school>/clubs', views.clubs_list),
-    path('api/<str:school>/club/<str:id>', views.club_detail)
+    path('api/<str:school>/club/<str:id>', views.club_detail),
+    path('api/<str:school>/events', views.events_list),
+    path('api/<str:school>/event/<int:id>', views.event_detail),
 ]

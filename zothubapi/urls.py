@@ -35,5 +35,5 @@ urlpatterns = [
     path('api/<str:school>/createevent', views.event_create), #create an event
     path('api/<str:school>/populareevents', views.popularevents), #get list of popular events
     path('api/<str:school>/search', views.search), #search term
-    path('api/<str:school>/recommendations', views.recommendation) #search term
+    path('api/<str:school>/recommendations', views.recommendation) #recommendations
 ]

@@ -226,6 +226,7 @@ def recommendation(request, school):
         'Speech', 'Sports', 'STEM', 'Student', 'Technology', 'Theater', 'Tourism', 'Tradition', 'Travel', 'Volunteering',
         'Wellness', 'Writing', 'Games', 'Magic', 'Food', 'Formal', 'Dinner', 'Lunch', 'Presentation']
     tagval = np.load('./hub/prebuiltModelTagsSimilarity.npy')
+    things_user_in = []
     try:
         user = UserProfile.objects.get(username=Token.objects.get(key=request.GET.get("token", '')).user.username)
     except Exception as e:
@@ -233,10 +234,13 @@ def recommendation(request, school):
     userPreferences = set()
     for t in user.following_tags.all():
         userPreferences.add(t.name)
+        things_user_in.append(t.name)
     for c in user.following_clubs.all():
+        things_user_in.append(c.clubid)
         for t in c.tags.all():
             userPreferences.add(t.name)
     for e in user.following_events.all():
+        things_user_in.append(e.id)
         for t in e.tags.all():
             userPreferences.add(t.name)
     userPreferences = list(userPreferences)
@@ -256,7 +260,8 @@ def recommendation(request, school):
         for i in up:
             for j in c_vals:
                 val+=float(tagval[i][j])
-        clubs_similar.append([c.clubid, val])
+        if c.clubid not in things_user_in:
+            clubs_similar.append([c.clubid, val])
     clubs_similar.sort(key=lambda x: x[1], reverse=True)
     clubs_similar = clubs_similar[0:3]
     #events recommendation
@@ -270,7 +275,8 @@ def recommendation(request, school):
         for i in up:
             for j in e_vals:
                 val+=float(tagval[i][j])
-        events_similar.append([e.id, val])
+        if e.id not in things_user_in:
+            events_similar.append([e.id, val])
     events_similar.sort(key=lambda x: x[1], reverse=True)
     events_similar = events_similar[0:3]
     #tags recommendation
@@ -283,7 +289,8 @@ def recommendation(request, school):
         for i in up:
             for j in e_vals:
                 val+=float(tagval[i][j])
-        tags_similar.append([e.name, val])
+        if e.name not in things_user_in:
+            tags_similar.append([e.name, val])
     tags_similar.sort(key=lambda x: x[1], reverse=True)
     tags_similar = tags_similar[0:3]
 

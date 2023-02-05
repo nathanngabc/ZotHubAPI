@@ -261,8 +261,8 @@ def recommendation(request, school):
             for j in c_vals:
                 val+=float(tagval[i][j])
         if c.clubid not in things_user_in:
-            clubs_similar.append([c.clubid, val])
-    clubs_similar.sort(key=lambda x: x[1], reverse=True)
+            clubs_similar.append([c.clubid, c.name, val])
+    clubs_similar.sort(key=lambda x: x[2], reverse=True)
     clubs_similar = clubs_similar[0:3]
     #events recommendation
     events_similar = []
@@ -276,8 +276,8 @@ def recommendation(request, school):
             for j in e_vals:
                 val+=float(tagval[i][j])
         if e.id not in things_user_in:
-            events_similar.append([e.id, val])
-    events_similar.sort(key=lambda x: x[1], reverse=True)
+            events_similar.append([e.id, e.name, e.description, val])
+    events_similar.sort(key=lambda x: x[3], reverse=True)
     events_similar = events_similar[0:3]
     #tags recommendation
     tags_similar = []

@@ -214,7 +214,7 @@ def ProfileCreate(request):
     userprofile = UserProfile(username = request.data.get("username"), associated_user = user, school=request.data.get("school"))
     userprofile.save()
     token = Token.objects.create(user=user)
-    user = UserProfile.objects.get(username=Token.objects.get(token).user.username)
+    user = UserProfile.objects.get(username=Token.objects.get(key=token).user.username)
     return Response({'success': True, 'token': token.key})
 
 @api_view(["GET"])
@@ -293,5 +293,5 @@ def recommendation(request, school):
             tags_similar.append([e.name, val])
     tags_similar.sort(key=lambda x: x[1], reverse=True)
     tags_similar = tags_similar[0:3]
-
+    
     return Response({'success': True, 'clubs': clubs_similar, 'events': events_similar, 'tags': tags_similar})

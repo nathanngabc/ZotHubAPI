@@ -127,6 +127,28 @@ def popularevents(request, school):
         e[1].featured=True
     return EventSerializer(eventslist, context={'request': request}, many=True)
 
+@api_view(['POST'])
+def search(request, school):
+    search_results = [["Events"], ["Clubs"], ["Tags"]]
+    searchTerm = request.data.get("searchterm")
+    for e in Event.objects.filter(school=school):
+        if searchTerm in e.name or searchTerm in e.description:
+            search_results[0].append(e.id)
+        else:
+            for t in e.tags:
+                if e in t.name:
+                    search_results[0].append(e.id)
+    for c in Club.objects.filter(school=school):
+        if searchTerm in c.name or searchTerm in c.description:
+            search_results[1].append(c.clubid)
+        else:
+            for t in c.tags:
+                if c in t.name:
+                    search_results[1].append(c.clubid)
+    for t in Tag.objects.all():
+        if searchTerm in t.name:
+            search_results[2].append(t.name)
+
 #USERS
 
 @api_view(['GET', 'POST'])

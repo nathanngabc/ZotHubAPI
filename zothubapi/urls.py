@@ -27,7 +27,7 @@ urlpatterns = [
     path('api/<str:school>/club/<str:id>', views.club_detail),   #get specific club info based on school + string club id
     path('api/<str:school>/events', views.events_list),   #get list of events per school
     path('api/<str:school>/event/<int:id>', views.event_detail), #gets individual detials on club
-    path('api/profile', views.ProfileView), #get profile information, requires token auth
+    path('api/profile', views.ProfileView), #get profile information, requires token auth; also post info
     path('api/createuser', views.ProfileCreate), #create profile, returns token auth
     path('api-token-auth', v.obtain_auth_token, name='api-token-auth'), #returns token auth, requires username/password
     path('api/<str:school>/club/<str:id>/events', views.club_events_list) #returns list of events per school, club

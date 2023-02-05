@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 
 
-from .models import Club, Event, UserProfile
+from .models import Club, Event, UserProfile, Tag
 from .serializers import *
 
 from rest_framework.permissions import IsAuthenticated
@@ -85,23 +85,52 @@ def event_detail(request, school, id):
 
 #USERS
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def ProfileView(request):
-    user = UserProfile.objects.get(username=Token.objects.get(key=request.GET.get("token", '')).user.username)
+    try:
+        user = UserProfile.objects.get(username=Token.objects.get(key=request.GET.get("token", '')).user.username)
+    except Exception as e:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
     
     if request.method == 'GET':
-        print(user)
         data = userSerializers(user, context={'request': request}, many=False)
         return Response(data.data)
+    if request.method == 'POST':
+        typeAdded = request.data.get("type")
+        action = request.data.get("action")
+        if typeAdded == "tag":
+            tag_added = request.data.get("tag")
+            tag = Tag.objects.get(name=tag_added)
+            if action == "add": user.following_tags.add(tag)
+            elif action == "remove": user.following_tags.remove(tag)
+        elif typeAdded == "club":
+            club_added = request.data.get("club")
+            club = Club.objects.get(clubid=club_added)
+            if action == "add":
+                user.following_clubs.add(club)
+                club.memberCount += 1
+            elif action == "remove":
+                user.following_clubs.remove(club)
+                club.memberCount += -1
+        elif typeAdded == "event":
+            event_added = request.data.get("event")
+            event = Event.objects.get(id=event_added)
+            if action == "add":
+                user.following_events.add(event)
+                event.memberCount += 1
+            elif action == "remove":
+                user.following_events.remove(event)
+                event.memberCount += -1
+
+        return Response({'success': True})
 
 @api_view(['POST'])
 def ProfileCreate(request):
-    print(request.data)
     user = User.objects.create_user(username=request.data.get("username"),
                                  email=request.data.get("email"),
                                  password=request.data.get("password"))
     user.save()
-    userprofile = UserProfile(username = request.data.get("username"), associated_user = user)
+    userprofile = UserProfile(username = request.data.get("username"), associated_user = user, school=request.data.get("school"))
     userprofile.save()
     token = Token.objects.create(user=user)
     return Response({'success': True, 'token': token.key})

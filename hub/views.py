@@ -214,7 +214,7 @@ def ProfileCreate(request):
     userprofile = UserProfile(username = request.data.get("username"), associated_user = user, school=request.data.get("school"))
     userprofile.save()
     token = Token.objects.create(user=user)
-    user = UserProfile.objects.get(username=Token.objects.get(key=request.GET.get("token", '')).user.username)
+    user = UserProfile.objects.get(username=Token.objects.get(token).user.username)
     return Response({'success': True, 'token': token.key})
 
 @api_view(["GET"])

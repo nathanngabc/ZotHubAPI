@@ -32,5 +32,6 @@ urlpatterns = [
     path('api-token-auth', v.obtain_auth_token, name='api-token-auth'), #returns token auth, requires username/password
     path('api/<str:school>/club/<str:id>/events', views.club_events_list), #returns list of events per school, club
     path('api/<str:school>/createclub', views.club_create), #create a club
-    path('api/<str:school>/createevent', views.event_create)
+    path('api/<str:school>/createevent', views.event_create), #create an event
+    path('api/<str:school>/populareevents', views.popularevents) #get list of popular events
 ]

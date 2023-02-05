@@ -5,6 +5,8 @@ from django.db.models.query import QuerySet
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from datetime import date, time
+import numpy as np
+import datetime
 
 
 
@@ -148,7 +150,7 @@ def search(request, school):
         if searchTerm in e.name or searchTerm in e.description:
             search_results[0].append(e.id)
         else:
-            for t in e.tags:
+            for t in e.tags.all():
                 if e in t.name:
                     search_results[0].append(e.id)
     for c in Club.objects.filter(school=school):
@@ -212,4 +214,77 @@ def ProfileCreate(request):
     userprofile = UserProfile(username = request.data.get("username"), associated_user = user, school=request.data.get("school"))
     userprofile.save()
     token = Token.objects.create(user=user)
+    user = UserProfile.objects.get(username=Token.objects.get(key=request.GET.get("token", '')).user.username)
     return Response({'success': True, 'token': token.key})
+
+@api_view(["GET"])
+def recommendation(request, school):
+    tags = ['Academic', 'Art', 'Athletics', 'Band', 'Book', 'Chess', 'Chorus', 'Community', 'Competition',
+        'Computer', 'Dance', 'Debate', 'Drama', 'Educational', 'Engineering', 'Ensemble', 'Environmental',
+        'Fitness', 'Foreign', 'Games', 'Gardening', 'History', 'Journalism', 'Language', 'Leadership', 'Literary',
+        'Math', 'Music', 'Photography', 'Poetry', 'Politics', 'Science', 'Scouting', 'Service', 'Shakespeare', 'Social',
+        'Speech', 'Sports', 'STEM', 'Student', 'Technology', 'Theater', 'Tourism', 'Tradition', 'Travel', 'Volunteering',
+        'Wellness', 'Writing', 'Games', 'Magic', 'Food', 'Formal', 'Dinner', 'Lunch', 'Presentation']
+    tagval = np.load('./hub/prebuiltModelTagsSimilarity.npy')
+    try:
+        user = UserProfile.objects.get(username=Token.objects.get(key=request.GET.get("token", '')).user.username)
+    except Exception as e:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    userPreferences = set()
+    for t in user.following_tags.all():
+        userPreferences.add(t.name)
+    for c in user.following_clubs.all():
+        for t in c.tags.all():
+            userPreferences.add(t.name)
+    for e in user.following_events.all():
+        for t in e.tags.all():
+            userPreferences.add(t.name)
+    userPreferences = list(userPreferences)
+    up = []
+    for t in userPreferences:
+        if t in tags:
+            up.append(tags.index(t))
+    
+    #clubs recommendation
+    clubs_similar = []
+    for c in Club.objects.all():
+        c_vals = []
+        for t in c.tags.all():
+            if t.name in tags:
+                c_vals.append(tags.index(t.name))
+        val = 0
+        for i in up:
+            for j in c_vals:
+                val+=float(tagval[i][j])
+        clubs_similar.append([c.clubid, val])
+    clubs_similar.sort(key=lambda x: x[1], reverse=True)
+    clubs_similar = clubs_similar[0:3]
+    #events recommendation
+    events_similar = []
+    for e in Event.objects.all():
+        e_vals = []
+        for t in e.tags.all():
+            if t.name in tags:
+                e_vals.append(tags.index(t.name))
+        val = 0
+        for i in up:
+            for j in e_vals:
+                val+=float(tagval[i][j])
+        events_similar.append([e.id, val])
+    events_similar.sort(key=lambda x: x[1], reverse=True)
+    events_similar = events_similar[0:3]
+    #tags recommendation
+    tags_similar = []
+    for e in Tag.objects.all():
+        e_vals = []
+        if t.name in tags:
+            e_vals.append(tags.index(t.name))
+        val = 0
+        for i in up:
+            for j in e_vals:
+                val+=float(tagval[i][j])
+        tags_similar.append([e.name, val])
+    tags_similar.sort(key=lambda x: x[1], reverse=True)
+    tags_similar = tags_similar[0:3]
+
+    return Response({'success': True, 'clubs': clubs_similar, 'events': events_similar, 'tags': tags_similar})

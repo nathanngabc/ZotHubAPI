@@ -15,8 +15,7 @@ class Club(models.Model):
     email = models.EmailField()
     school = models.CharField("School", max_length = 100)
     clubid = models.CharField("clubid", max_length = 100, primary_key=True)
-    featured = models.BooleanField(default=False)
-    iamgeURL = models.CharField(max_length = 300)
+    imageURL = models.CharField(max_length = 300)
     memberCount = models.IntegerField(default=0)
     tags = models.ManyToManyField(Tag, blank=True, related_name="club_tags")
 
@@ -31,6 +30,7 @@ class Event(models.Model):
     starttime = models.TimeField()
     endtime = models.TimeField()
     date = models.DateField()
+    featured = models.BooleanField(default=False)
     location = models.CharField(max_length = 100)
     type = models.CharField(max_length=100)
     tags = models.ManyToManyField(Tag, blank=True, related_name="event_tags")
@@ -47,8 +47,11 @@ class UserProfile(models.Model):
     following_tags = models.ManyToManyField(Tag, blank=True, related_name="user_tags")
     following_clubs = models.ManyToManyField(Club, blank=True, related_name="user_clubs")
     following_events = models.ManyToManyField(Event, blank=True, related_name="user_events")
+
+    clubs_owned = models.ManyToManyField(Club, blank=True, related_name = "owned_clubs")
     
     school = models.CharField(max_length=100, default="uci")
 
     def __str__(self):
         return self.username
+

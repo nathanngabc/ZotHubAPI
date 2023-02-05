@@ -4,7 +4,8 @@ from rest_framework import status
 from django.db.models.query import QuerySet
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-from datetime import datetime
+from datetime import date, time
+
 
 
 from .models import Club, Event, UserProfile, Tag
@@ -16,6 +17,18 @@ from rest_framework.permissions import IsAuthenticated
 
 @api_view(['GET'])
 def clubs_list(request, school):
+    '''
+    c = Club.objects.get(clubid="cyberuci")
+    e1 = Event(name="Cyber Crime Prevention Workshop", description="A workshop for students to learn about cyber crime prevention and how to protect themselves online", club=c, starttime=time(9, 0), endtime=time(2, 0), date=date(2023, 3, 13), location="School Computer Lab", type="Cyber Crime Prevention Workshop", featured=True, memberCount=100)
+
+
+    e1.save()
+    tag1 = Tag.objects.get(name="Computer")
+    tag2 = Tag.objects.get(name="STEM")
+    e1.tags.add(tag1)
+    e1.tags.add(tag2)
+    '''
+
     if request.method == 'GET':
         data = Club.objects.filter(school=school)
         serializer = ClubSerializer(data, context={'request': request}, many=True)
